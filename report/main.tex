@@ -1,0 +1,67 @@
+\documentclass[a4paper]{article}
+
+
+\usepackage{amsthm,amssymb,amsmath}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\usepackage{iclr2022_conference,times}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\usepackage{amartya_ltx}
+
+\usepackage{natbib}
+
+\title{Where do Adversarial examples lie?}
+\author{Antiquus S.~Hippocampus, Natalia Cerebro \& Amelie P. Amygdale \thanks{ Use footnote for providing further information
+about author (webpage, alternative address)---\emph{not} for acknowledging
+funding agencies.  Funding acknowledgements go at the end of the paper.} \\
+Department of Computer Science\\
+Cranberry-Lemon University\\
+Pittsburgh, PA 15213, USA \\
+\texttt{\{hippo,brain,jen\}@cs.cranberry-lemon.edu} \\
+\And
+Ji Q. Ren \& Yevgeny LeNet \\
+Department of Computational Neuroscience \\
+University of the Witwatersrand \\
+Joburg, South Africa \\
+\texttt{\{robot,net\}@wits.ac.za} \\
+\AND
+Coauthor \\
+Affiliation \\
+Address \\
+\texttt{email}
+}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+% \iclrfinalcopy
+\begin{document}
+
+
+
+\maketitle
+
+\begin{abstract}
+    Despite achieving low errors in various classification tasks,
+    over-parameterized neural networks have been shown to be vulnerable to
+    gradient-based adversarial attacks~(\citet{szegedy2013intriguing}). In this paper, we first show that these
+    attacks are created by manipulating the components of low variance in the
+    input space and propose a simple method to detect them.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+\input{intro}
+
+\section{Identifying Adversarial Examples}
+\label{sec:ident}
+\input{identify}
+
+\bibliography{subspace_ref}
+\bibliographystyle{plainnat}
+
+
+\end{document}
