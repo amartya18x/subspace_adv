@@ -1,5 +1,71 @@
-Consider a $k$-class multiclass classification problem with a data distribution
-\(\cD\) over \(\reals^d\times\cY\) where \(\reals^d\) is the input domain and
-\(\cY\) is the target domain. In a learning problem, an $N$-sized dataset
-\(S_N~\cD^N\), known as the training set, is  first sampled i.i.d. from \(\cD\)
-and then a neural network \(f_\theta\), parameterized by \(\theta\) is optimized to minimize the empirical loss.
+Consider a $k$-class classification problem defined on a data distribution
+\(\cD\) over \(\reals^d\times\cY\). The goal of learning is to produce a set of
+parameters \(\theta\) such that a neural network \(f_{\theta}\), parameterised
+by \(\theta\), obtains a small expected error~\(\risk{\cD}{f}\).
+
+\begin{restatable}[Expected risk]{defn}{emprisk}
+    \label{defn:exp_loss}
+    For a distribution $\cD$, and a neural network $f_\theta$, the expected risk
+    is defined as 
+  \[  \risk{\cD}{f}=\bP_{\br{\vec{x},y}\sim\cD}\bs{f\br{\vec{x}}\neq y},\]
+  \end{restatable}
+
+However, there are two main challenges to his. First, despite being fixed, the
+distribution \(\cD\) is unknown to the learner and hence, the learner cannot
+directly optimise the expected risk. Instead, the learner is presented with an
+$N$-sized training dataset \(S_N \sim \cD^N\) sampled i.i.d. from \(\cD\). A neural
+network \(f_\theta\) is then trained to minimise the empirical classification
+error \(\empRisk{h}{N}\) on \(S_N\) with the hope that a small empirical
+classification error~\(\empRisk{h}{N}\) would also translate to low expected
+risk \(\risk{\cD}{f}\). 
+\begin{defn}[Empirical risk]
+    \label{defn:emp_loss}
+    If the training set consists of $\{(\vec{x}_i, y_i)\}$ for $i \in \{1\cdots
+    N\}$ then the empirical loss is defined as
+    \[\empRisk{h}{N} = \frac{1}{N} \sum_{i=1}^N \bI\bs{h\br{\vec{x}_i} \neq y_i}\]
+  \end{defn}
+
+  Second, it is also hard to estimate the expected error~\(\risk{\cD}{f}\) as
+  the learner does not have access to the distribution \(\cD\). Instead the
+  learner has access to a test dataset, another set of i.i.d. samples from
+  \(\cD\). To test the performance of a neural network, its error on this test set is considered as a proxy for~\(\risk{\cD}{f}\).
+   
+  For many modern over-parameterised neural network, experiments have usually
+  borne out that a low empirical error on the train set also leads to a low test
+  error. However, recent
+  works~\citep{goodfellow2014explaining,szegedy2013intriguing} have shown that
+  despite achieving low test error these neural networks are susceptible to
+  \(\ell_p\) adversarial attacks and consequently, has a very high \(\ell_p\)
+  adversarial error.
+
+\begin{restatable}[$\ell_p$ Adversarial
+  Error]{defn}{advrisk}\label{defn:adv_risk} For any distribution $\cD$
+  defined over $\br{\vec{x},y}\in\reals^d\times\cY$, any classifier
+  $h:\reals^d\rightarrow\cY$, and any $\gamma>0$, 
+  %%
+  the $\gamma$-\emph{adversarial} error is 
+          \begin{equation} 
+              \radv{\gamma}{h;\cD}=\bP_{\br{\vec{x},y} 
+              \sim\cD}\bs{\exists \vec{z}\in\cB_{\gamma}
+              \br{\vec{x}};h\br{\vec{z}}\neq y},
+          \end{equation} 
+  where $\cB_\gamma^p\br{\vec{x}}$ is the $\ell_p$ ball of radius $\gamma \ge
+  0$ around $\vec{x}$ under the $\ell_p$ norm.
+\end{restatable}
+
+The observation that these state-of-the-art neural networks have a low test
+error but a high adversarial error indicate that while they are well-behaved on
+the manifold of the observed data~(low test error), their behavior is less
+predictable if the data is moved slightly away from the manifold~(high
+adversarial error). An algorithm that can detect whether there is a large mass away from the manifold can possibly detect adversarial examples. In this paper, we make this intuition more rigorous and present an algorithm to do the same.
+
+More precisely, we define the {\em data subspace} as the space spanned by the
+top eigenvectors of the data and the {\em adversarial subspace} as the space
+orthogonal to it. Let the data matrix be \(S_{N\vert X}\in\reals^{N\times d}\)
+and let \(\bc{c_1,\cdots,c_d}\) be the corresponding principal components in descending order of the variance of data explained by each component. For two positive integers \(1\le s_1\le s_2\le d\), the {\em data subspace} is defined as the space spanned by \(\{c_1,\cdots,c_{s_1}\}\) and the orthogonal space is the space spanned by \(c_{s_1+1},\cdots,c_{s_2}\). Then for every point \(\vec{x}\in\reals^d\), we assign a score 
+
+\begin{equation}
+  \rho\br{\vec{x}} = \sqrt{\dfrac{\sum_{i=s_1+1}^{s_2}\ip{\vec{c_i}}{\vec{x}}^2}{ \sum_{i=1}^{s_1} \ip{\vec{c_i}}{\vec{x}}^2}}
+\end{equation}
+
+Then for a given a threshold \(\rho_0\), if \(\rho\br{\vec{x}}\ge \rho_0\), we classify \(\vec{x}\) as an adversarial example otherwise we classify it as a natural example.
