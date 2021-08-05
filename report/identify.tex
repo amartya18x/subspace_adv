@@ -59,24 +59,121 @@ the manifold of the observed data~(low test error), their behavior is less
 predictable if the data is moved slightly away from the manifold~(high
 adversarial error). An algorithm that can detect whether there is a large mass away from the manifold can possibly detect adversarial examples. In this paper, we make this intuition more rigorous and present an algorithm to do the same.
 
+\begin{figure}[t]
+  \centering
+  \def\svgwidth{0.99\columnwidth}
+  \input{./figs/adv_2d_subspace_noiseless.pdf_tex}
+  \caption{The left plot shows the distribution of the training data ~(two
+  classes represented by {\color{orange} orange} and {\color{green} green}
+  circles). The right figure shows the construction of adversarial attacks on
+  the same classifier using a test set. The {\color{red} red} and
+  {\color{green} green} crosses~(\(\times \)) are the adversarially vulnerable
+  test points, the {\color{blue} blue arrows} are the direction of adversarial
+  perturbation, and the {\color{red} red} and {\color{green} green}
+  circles~(\(\circ\)) are the adversarially perturbed points.}
+  \label{fig:dir-adv-att}
+\end{figure}
+
+\subsection{Toy Experiment with non-isotropic multivariate gaussian}
+To gain an intuition, we create a simple 2-dimensional binary classification
+task in~\Cref{fig:dir-adv-att}. The data is sampled from a mixture of two
+two-dimensional non-isotropic gaussians centered at \(\br{-2,0}\) and
+\(\br{2,0}\) respectively. The covariance matrices of both gaussians are
+diagonal with diagonal entries \(1\) and  \(0.05\). To sample a point from the
+distribution, first a label is sampled \(y\sim\mathrm{Unif}\br{\bc{-1,1}}\) and
+then the covariates are sampled from the above mentioned gaussian centered at
+\(2y\). Note that, out of the two coordinates the main variance in the
+covariates is along the first coordinate, denoted as the {\emph principal
+component} in~\Cref{fig:dir-adv-att}, with a small variance along the second
+coordinate, denoted as the non-principal component in~\Cref{fig:dir-adv-att}.
+
+Interestingly, the arrows in~\Cref{fig:dir-adv-att} show that all adversarial
+attacks have a significant component along the non-principal component i.e.
+along the vertical direction, even when adversarial attacks are possible by only
+moving horizontally along the principal component. Thus, the adversarially
+perturbed points~({\color{red} red} and {\color{green} green} circles) tend to
+have a larger~(in magnitude) vertical component than the clean test
+points~({\color{orange} orange} and {\color{green} green} circles). 
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[t]{0.16\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/diff_comp_2mog_6dim_1prin.pdf_tex}
+    \subcaption{1 PC}
+    \label{fig:1-prin-comp}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.16\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/diff_comp_2mog_6dim_2prin.pdf_tex}
+    \subcaption{2 PC}
+    \label{fig:2-prin-comp}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.16\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/diff_comp_2mog_6dim_3prin.pdf_tex}
+    \subcaption{3 PC}
+    \label{fig:3-prin-comp}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.16\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/diff_comp_2mog_6dim_4prin.pdf_tex}
+    \subcaption{4 PC}
+    \label{fig:4-prin-comp}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.16\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/diff_comp_2mog_6dim_5prin.pdf_tex}
+    \subcaption{5 PC}
+    \label{fig:5-prin-comp}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.16\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/diff_comp_2mog_6dim_6prin.pdf_tex}
+    \subcaption{6 PC}
+    \label{fig:6-prin-comp}
+  \end{subfigure}
+  \caption{Adversarial example puts energy on non Principal Components~(PC). X axis indicates the index of the component and Y axis represents the average energy on that component.}
+  \label{fig:energy-principal-comp}
+\end{figure}
+
+Next, we extend this to \(6\)-dimensional gaussians. We vary the number of
+principal and non-principal components in the data and then measure the energy
+of the clean and the adversarial data points along these principal and
+non-principal components. To set the number of principal and non-principal
+components to \(s\) and \(6-s\), we simply change the diagonal entries of
+covariance matrix to \(s\) ones followed by \(6-s\) times \(0.05\)s
+respectively. We train a a neural network on a dataset sampled from this
+distribution just like the two-dimensional example above and create adversarial
+examples using PGD. Then, we compute the principal and non-principal components
+of the training data using PCA and obtain the projection of each clean and
+adversarial example on each these PCA components. This experiment is repeated
+for all \(s\in\bc{1,\cdots,6}\).
+
+In~\Cref{fig:energy-principal-comp}, we plot the average energy of the clean
+data and the adversarial data on each of the PCA components for varying number
+of principal and non-principal components. For example, the experiment
+in~\Cref{fig:1-prin-comp} has \(1\) principal component and \(5\) non-principal
+components whereas the experiment in~\Cref{fig:6-prin-comp} has \(6\) principal
+components and \(0\) non-principal components. The {\color{orange} orange} lines show the average energy of adversarial examples on each component and the {\color{blue} blue} line shows the average energy of the clean example on each component.~\Cref{fig:energy-principal-comp} clearly shows that the adversarial examples have a similar energy on the principal components as clean examples but have a much higher energy on the non-principal components than the clean examples. We use this as a motivation to define the Energy Ratio Score function in the next section.
+
+
+\subsection{Defining the Energy Ratio Score function}
 More precisely, we define the {\em data subspace} as the space spanned by the
 top eigenvectors of the data and the {\em adversarial subspace} as the space
 orthogonal to it. Let the data matrix be \(S_{N\vert X}\in\reals^{N\times d}\)
-and let \(\bc{c_1,\cdots,c_d}\) be the corresponding principal components in descending order of the variance of data explained by each component. For two positive integers \(1\le s_1\le s_2\le d\), the {\em data subspace} is defined as the space spanned by \(\{c_1,\cdots,c_{s_1}\}\) and the orthogonal space is the space spanned by \(c_{s_1+1},\cdots,c_{s_2}\). Then for every point \(\vec{x}\in\reals^d\), we assign a score 
+and let \(\bc{c_1,\cdots,c_d}\) be the corresponding principal components in
+descending order of the variance of data explained by each component. For two
+positive integers \(1\le s_1\le s_2\le d\), the {\em data subspace} is defined
+as the space spanned by \(\{c_1,\cdots,c_{s_1}\}\) and the orthogonal space is
+the space spanned by \(c_{s_1+1},\cdots,c_{s_2}\). Then for every point
+\(\vec{x}\in\reals^d\), we assign a score 
 
 \begin{equation}
   \rho\br{\vec{x}} = \sqrt{\dfrac{\sum_{i=s_1+1}^{s_2}\ip{\vec{c_i}}{\vec{x}}^2}{ \sum_{i=1}^{s_1} \ip{\vec{c_i}}{\vec{x}}^2}}
 \end{equation}
 
-Then for a given a threshold \(\rho_0\), if \(\rho\br{\vec{x}}\ge \rho_0\), we classify \(\vec{x}\) as an adversarial example otherwise we classify it as a natural example.
-
-  \begin{figure}[t]
-    \centering
-    \def\svgwidth{0.99\columnwidth}
-    \input{./figs/adv_2d_subspace_noiseless.pdf_tex}
-    \caption{Adversarial attacks direction}
-    \label{fig:dir-adv-att}
-\end{figure}
+Then for a given a threshold \(\rho_0\), if \(\rho\br{\vec{x}}\ge \rho_0\), we classify \(\vec{x}\) as an adversarial example otherwise we classify it as a natural example. 
 
 
 \begin{figure}[t]
@@ -84,16 +181,16 @@ Then for a given a threshold \(\rho_0\), if \(\rho\br{\vec{x}}\ge \rho_0\), we c
   \begin{subfigure}[t]{0.49\linewidth}
     \def\svgwidth{0.99\columnwidth}
     \input{./figs/adv_clean_ortho_dim_auc.pdf_tex}
-    \subcaption{Representation Space}
+    \subcaption{Representation Space~(Dim\(\approx\)9000)}
     \label{fig:dir-adv-att-repr}
   \end{subfigure}
   \begin{subfigure}[t]{0.49\linewidth}
     \def\svgwidth{0.99\columnwidth}
     \input{./figs/adv_clean_ortho_dim_auc_imgspace.pdf_tex}
-    \subcaption{Input Space}
+    \subcaption{Input Space~(Dim=784)}
     \label{fig:dir-adv-att-inp}
   \end{subfigure}
-  \caption{Increasing the Adv subspace dimenions and the data dimension increases the classifiability of adversarial example}
+  \caption{Increasing the Adv subspace dimensions and the data dimension increases the classifiability of adversarial example. The vertical lines are isolines for the sum of the two adversarial subspace dimension and the data subspace dimension.}
 \end{figure}
 
 % AUC values for represeantation
@@ -106,27 +203,3 @@ Then for a given a threshold \(\rho_0\), if \(\rho\br{\vec{x}}\ge \rho_0\), we c
 %         [0.9955351 , 0.99602749, 0.9963835 , 0.99699675, 0.9979373 ]]))
 
 
-This is motivated by the observation~(\Cref{fig:dir-adv-att}) that adversarial att
-
-\begin{figure}[t]
-  \centering
-  \begin{subfigure}[t]{0.32\linewidth}
-    \def\svgwidth{0.99\columnwidth}
-    \input{./figs/diff_comp_2mog_6dim_1prin.pdf_tex}
-    \subcaption{1 Principal Components}
-    \label{fig:1-prin-comp}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.32\linewidth}
-    \def\svgwidth{0.99\columnwidth}
-    \input{./figs/diff_comp_2mog_6dim_2prin.pdf_tex}
-    \subcaption{2 Principal Components}
-    \label{fig:2-prin-comp}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.32\linewidth}
-    \def\svgwidth{0.99\columnwidth}
-    \input{./figs/diff_comp_2mog_6dim_3prin.pdf_tex}
-    \subcaption{3 Principal Components}
-    \label{fig:3-prin-comp}
-  \end{subfigure}
-  \caption{Adversarial example puts energy on lesser components}
-\end{figure}
