@@ -69,3 +69,64 @@ and let \(\bc{c_1,\cdots,c_d}\) be the corresponding principal components in des
 \end{equation}
 
 Then for a given a threshold \(\rho_0\), if \(\rho\br{\vec{x}}\ge \rho_0\), we classify \(\vec{x}\) as an adversarial example otherwise we classify it as a natural example.
+
+  \begin{figure}[t]
+    \centering
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/adv_2d_subspace_noiseless.pdf_tex}
+    \caption{Adversarial attacks direction}
+    \label{fig:dir-adv-att}
+\end{figure}
+
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[t]{0.49\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/adv_clean_ortho_dim_auc.pdf_tex}
+    \subcaption{Representation Space}
+    \label{fig:dir-adv-att-repr}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.49\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/adv_clean_ortho_dim_auc_imgspace.pdf_tex}
+    \subcaption{Input Space}
+    \label{fig:dir-adv-att-inp}
+  \end{subfigure}
+  \caption{Increasing the Adv subspace dimenions and the data dimension increases the classifiability of adversarial example}
+\end{figure}
+
+% AUC values for represeantation
+% ([500, 800, 1000, 2000, 5000],
+%  [480, 600, 900, 1500, 3000],
+%  array([[0.86347451, 0.871213  , 0.88653578, 0.90413287, 0.92836279],
+%         [0.89912602, 0.90562672, 0.91786264, 0.93481801, 0.95354976],
+%         [0.91893012, 0.92618109, 0.93657281, 0.94936903, 0.96454761],
+%         [0.96882571, 0.972665  , 0.97610959, 0.98073429, 0.98755096],
+%         [0.9955351 , 0.99602749, 0.9963835 , 0.99699675, 0.9979373 ]]))
+
+
+This is motivated by the observation~(\Cref{fig:dir-adv-att}) that adversarial att
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[t]{0.32\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/diff_comp_2mog_6dim_1prin.pdf_tex}
+    \subcaption{1 Principal Components}
+    \label{fig:1-prin-comp}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.32\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/diff_comp_2mog_6dim_2prin.pdf_tex}
+    \subcaption{2 Principal Components}
+    \label{fig:2-prin-comp}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.32\linewidth}
+    \def\svgwidth{0.99\columnwidth}
+    \input{./figs/diff_comp_2mog_6dim_3prin.pdf_tex}
+    \subcaption{3 Principal Components}
+    \label{fig:3-prin-comp}
+  \end{subfigure}
+  \caption{Adversarial example puts energy on lesser components}
+\end{figure}
