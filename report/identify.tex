@@ -97,44 +97,67 @@ points~({\color{orange} orange} and {\color{green} green} circles).
 
 \begin{figure}[t]
   \centering
+  \begin{subfigure}[t]{0.99\linewidth}
   \begin{subfigure}[t]{0.16\linewidth}
     \def\svgwidth{0.99\columnwidth}
     \input{./figs/diff_comp_2mog_6dim_1prin.pdf_tex}
-    \subcaption{1 PC}
+    \subcaption*{1 PC}
     \label{fig:1-prin-comp}
   \end{subfigure}
   \begin{subfigure}[t]{0.16\linewidth}
     \def\svgwidth{0.99\columnwidth}
     \input{./figs/diff_comp_2mog_6dim_2prin.pdf_tex}
-    \subcaption{2 PC}
+    \subcaption*{2 PC}
     \label{fig:2-prin-comp}
   \end{subfigure}
   \begin{subfigure}[t]{0.16\linewidth}
     \def\svgwidth{0.99\columnwidth}
     \input{./figs/diff_comp_2mog_6dim_3prin.pdf_tex}
-    \subcaption{3 PC}
+    \subcaption*{3 PC}
     \label{fig:3-prin-comp}
   \end{subfigure}
   \begin{subfigure}[t]{0.16\linewidth}
     \def\svgwidth{0.99\columnwidth}
     \input{./figs/diff_comp_2mog_6dim_4prin.pdf_tex}
-    \subcaption{4 PC}
+    \subcaption*{4 PC}
     \label{fig:4-prin-comp}
   \end{subfigure}
   \begin{subfigure}[t]{0.16\linewidth}
     \def\svgwidth{0.99\columnwidth}
     \input{./figs/diff_comp_2mog_6dim_5prin.pdf_tex}
-    \subcaption{5 PC}
+    \subcaption*{5 PC}
     \label{fig:5-prin-comp}
   \end{subfigure}
   \begin{subfigure}[t]{0.16\linewidth}
     \def\svgwidth{0.99\columnwidth}
     \input{./figs/diff_comp_2mog_6dim_6prin.pdf_tex}
-    \subcaption{6 PC}
+    \subcaption*{6 PC}
     \label{fig:6-prin-comp}
   \end{subfigure}
-  \caption{Adversarial example puts energy on non Principal Components~(PC). X axis indicates the index of the component and Y axis represents the average energy on that component.}
-  \label{fig:energy-principal-comp}
+  % \subcaption{Energy on Various Components for clean and adversarial examples.}
+\end{subfigure}
+  % \begin{subfigure}[c]{0.3\linewidth}\centering
+  %   % \begin{subfigure}[t]{0.99\linewidth}
+  %   %   \def\svgwidth{0.99\columnwidth}
+  %   %   \input{./figs/128_dim_random_acc_null_space.pdf_tex}
+  %   %   \subcaption{}
+  %   %   \label{fig:128-dim-accs}
+  %   % \end{subfigure}
+  %   \begin{subfigure}[t]{0.99\linewidth}
+  %     \def\svgwidth{0.99\columnwidth}
+  %     \input{./figs/128_dim_random_adv_dim_null_space.pdf_tex}
+  %     \subcaption{}
+  %     \label{fig:128-dim-null-space-adv-space}
+  %   \end{subfigure}
+    % \caption{Sufficient dimension of Adv Subspace}
+% \end{subfigure}
+  \caption{Adversarial example puts energy on non Principal Components~(PC).
+  In~\Cref{fig:6-dim-gauss}, X axis indicates the index of the component and Y
+  axis represents the average energy of the {\color{blue} clean} and
+  {\color{orange} adversarial} examples on that component. The caption of each
+  figure indicates the number of principal components in the data.
+  }
+  \label{fig:6-dim-gauss}
 \end{figure}
 
 Next, we extend this to \(6\)-dimensional gaussians. We vary the number of
@@ -150,12 +173,49 @@ of the training data using PCA and obtain the projection of each clean and
 adversarial example on each these PCA components. This experiment is repeated
 for all \(s\in\bc{1,\cdots,6}\).
 
-In~\Cref{fig:energy-principal-comp}, we plot the average energy of the clean
-data and the adversarial data on each of the PCA components for varying number
-of principal and non-principal components. For example, the experiment
-in~\Cref{fig:1-prin-comp} has \(1\) principal component and \(5\) non-principal
-components whereas the experiment in~\Cref{fig:6-prin-comp} has \(6\) principal
-components and \(0\) non-principal components. The {\color{orange} orange} lines show the average energy of adversarial examples on each component and the {\color{blue} blue} line shows the average energy of the clean example on each component.~\Cref{fig:energy-principal-comp} clearly shows that the adversarial examples have a similar energy on the principal components as clean examples but have a much higher energy on the non-principal components than the clean examples. We use this as a motivation to define the Energy Ratio Score function in the next section.
+In~\Cref{fig:6-dim-gauss}, we plot the average energy of the clean data and the
+adversarial data on each of the PCA components for varying number of principal
+and non-principal components. For example, the experiment in  the first figure
+of~\Cref{fig:6-dim-gauss} has \(1\) principal component and \(5\) non-principal
+components whereas the experiment in the last figure has \(6\) principal
+components and \(0\) non-principal components. The {\color{orange} orange} lines
+show the average energy of adversarial examples on each component and the
+{\color{blue} blue} line shows the average energy of the clean example on each
+component.
+
+\begin{wrapfigure}{r}{0.5\linewidth}\vspace{-10pt}
+  \def\svgwidth{0.99\linewidth}
+  \input{./figs/128_dim_random_adv_dim_null_space.pdf_tex}
+  \caption{The X-axis plots the dimension of the null space~(128 - rank) of the
+  distribution. The Y-axis plots the number of dimensions where the adversarial
+  examples have at least \(10^5\) times the energy of the clean examples.}
+  \label{fig:128-dim-null-space-adv-space}\vspace{-15pt}
+\end{wrapfigure}
+
+In~\Cref{fig:128-dim-null-space-adv-space}, we can see this more explicitly ---
+that the number of dimensions where the adversarial examples have significantly
+more energy than the clean examples is equal to the dimension of the null-space
+of the data. The set of learning tasks is a set of 128-dimensional binary
+classification tasks where each of them vary by the rank of the data
+distribution. Out of the \(128\) dimensions, \(10\) dimensions are correlated
+with the label, \(\mathrm{dim}\br{\mathrm{Null Space}}\) features are random
+linear combinations of these\(10\) features and the rest of the features are
+random normally distributed. Thus, with a very probability the rank of the
+distribution is \(128 - \mathrm{dim}\br{\mathrm{Null Space}}\). 
+
+For each of the distributions, we sample \(5000\) training points, learn an MLP
+on that set, and then create adversarial examples. Then, we project the clean
+and adversarial examples on the \(128\) principal components and measure the
+energy on each component. The Y-axis plots the number of such components where
+the adversarial examples have at least \(10^5\) times the energy of the clean
+examples. Thus, the less the null dimension, the harder it is to distinguish the
+clean from the adversarial examples. 
+
+~\Cref{fig:6-dim-gauss,fig:128-dim-null-space-adv-space} clearly shows that the
+adversarial examples have a similar energy on the principal components as clean
+examples but have a much higher energy on the non-principal components than the
+clean examples. We use this as a motivation to define the Energy Ratio Score
+function in the next section.
 
 
 \subsection{Defining the Energy Ratio Score function}
@@ -187,6 +247,7 @@ space spanned by \(\{c_1,\cdots,c_{s_1}\}\) and the orthogonal space is the
 space spanned by \(c_{s_1+1},\cdots,c_{s_2}\). Then for every point
 \(\vec{x}\in\reals^{m_\ell}\), we assign a score 
 
+
 \begin{equation}\label{eq:energy-ratio-score-fn}
   \rho_{s_1,s_2}\br{\vec{x}} = \sqrt{\dfrac{\sum_{i=s_1+1}^{s_2}\ip{\vec{c_i}}{\vec{x}}^2}{ \sum_{i=1}^{s_1} \ip{\vec{c_i}}{\vec{x}}^2}}
 \end{equation}
@@ -200,3 +261,5 @@ Then for a given a threshold \(\rho_0\), we can define an adversary detector
 \]
  where classifying \(\vec{x}\) as \(1\) means classifying it as an adversarially perturbed example and \(0\) means classifying it as a clean example.
 
+
+ 

@@ -1,13 +1,3 @@
-
-We verify our strategy on the MNIST dataset with a standard 4-layered CNN. We
-extract representations from the input space~\(\ell=0\)~(784 dimensional), after
-the second layer~\(\ell=2\)~(9260 dimensional), and before the last linear
-layer~\(\ell=3\)~(128 dimensional). Then for varying values of the data subspace
-dimension~\(s_1\) and adversarial subspace dimension~\(s_2\), we compute the energy ratio score function~(\Cref{eq:energy-ratio-score-fn}) and then compute the AUROC score of the adversary detector function~(\Cref{eq:detector-fn}) \(\psi_{s_1, s_2, \rho} \)  by varying \(\rho\). We also vary the strength of the adversary by experimenting with two perturbation budgets \(\epsilon\in\bc{0.1, 0.3}\) for the \(\ell_\infty\) PGD adversary.
-
-The results are plotted in~\Cref{fig:auroc-detector-mnist}. Using either of the
-input layer or layer \(2\) gives us a high AUROC score, compared to the \(3^{\it rd}\) layer. However, the input layer is more sensitive to the hyper-parameters \(s_1\) and \(s_2\)~(the X and the Y axis respectively), whereas layer \(2\) is less sensitive to hyperparameters.
-
 \begin{figure}[t]
   \centering
   \begin{subfigure}[t]{0.99\linewidth}
@@ -69,6 +59,27 @@ input layer or layer \(2\) gives us a high AUROC score, compared to the \(3^{\it
 \label{fig:auroc-detector-mnist}
 \end{figure}
 
+
+We verify our strategy on the MNIST dataset with a standard 4-layered CNN. We
+extract representations from the input space~\(\ell=0\)~(784 dimensional), after
+the second layer~\(\ell=2\)~(9260 dimensional), and before the last linear
+layer~\(\ell=3\)~(128 dimensional). Then for varying values of the data subspace
+dimension~\(s_1\) and adversarial subspace dimension~\(s_2\), we compute the energy ratio score function~(\Cref{eq:energy-ratio-score-fn}) and then compute the AUROC score of the adversary detector function~(\Cref{eq:detector-fn}) \(\psi_{s_1, s_2, \rho} \)  by varying \(\rho\). We also vary the strength of the adversary by experimenting with two perturbation budgets \(\epsilon\in\bc{0.1, 0.3}\) for the \(\ell_\infty\) PGD adversary.
+
+The results are plotted in~\Cref{fig:auroc-detector-mnist}. Using either the
+input layer or layer \(2\) gives us a high AUROC score, compared to the \(3^{\it
+rd}\) layer. However, the input layer is more sensitive to the hyper-parameters
+\(s_1\) and \(s_2\)~(the X and the Y axis respectively), whereas layer \(2\) is
+less sensitive to hyperparameters.
+
+This is possibly because the 2nd layer is high-dimensional and thus has a larger Null space compared to the input space. To avoid, hyperpameter tuning, one might prefer to use the representation space compared to the input space. It is also interesting that the later layers perform poorly, mostly because at that point the representations have become more label specific and look very mucg alike for both clean and adversarial points. The fact that that layer has a dimension of only \(128\) makes it even harder to separate the two.
+
+\paragraph{Things to think about}
+\begin{enumerate}
+  \item Construct Adaptive Attacks to show limitations.
+  \item Show results on CIFAR10, CIFAR100 with larger datasets
+  \item Show theoretically that for a 1/2 layered MLP trained using GD on a low rank dataset, the adversarial examples have significant weight on the null space.
+\end{enumerate}
 % AUC values for represeantation
 % ([500, 800, 1000, 2000, 5000],
 %  [480, 600, 900, 1500, 3000],
