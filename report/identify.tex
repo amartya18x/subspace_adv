@@ -159,47 +159,44 @@ components and \(0\) non-principal components. The {\color{orange} orange} lines
 
 
 \subsection{Defining the Energy Ratio Score function}
-More precisely, we define the {\em data subspace} as the space spanned by the
-top eigenvectors of the data and the {\em adversarial subspace} as the space
-orthogonal to it. Let the data matrix be \(S_{N\vert X}\in\reals^{N\times d}\)
-and let \(\bc{c_1,\cdots,c_d}\) be the corresponding principal components in
-descending order of the variance of data explained by each component. For two
-positive integers \(1\le s_1\le s_2\le d\), the {\em data subspace} is defined
-as the space spanned by \(\{c_1,\cdots,c_{s_1}\}\) and the orthogonal space is
-the space spanned by \(c_{s_1+1},\cdots,c_{s_2}\). Then for every point
-\(\vec{x}\in\reals^d\), we assign a score 
+Let the data matrix be \(S_{N\vert X}\in\reals^{N\times d}\) and consider $f:
+\mathbb{R}^d \mapsto \mathbb{R}^k$ to be a feed-forward MLP that maps $d$
+dimensional input $\vx$ to a $k$ dimensional output $\vy$ with the width of the
+\(\ell^{\it th}\) layer being \(m_\ell\). We can decompose this into two
+sub-networks, one consisting of the layers before the $\ell^{\it th}$ layer and
+one after i.e.  $f(\vx) = f^{+}_\ell\br{f^{-}_\ell(\vx; \phi) ; \theta}$, where
+$f^{-}_\ell (.;\phi)$, parameterised by $\phi$, represents the part of the
+network up to layer $\ell$ and, $f^{+}_\ell(.;\theta)$ represents the part of
+the network thereafter. With this notation, the $m_\ell$ dimensional
+representation (or the activations) after any layer $\ell$ can simply be written
+as $\va = f^{-}_\ell(\vx; \phi) \in \mathbb{R}^{m_\ell}$ and we call the
+matrix,formed by stacking all of the representations from the \(\ell^{\it th}\)
+layer, the representation  matrix of the \(\ell^{\it th}\) layer
+\(\vec{A}^{\ell}\in\reals^{N\times m_\ell}\). For ease of notation, we refer to
+the input matrix  as the representation matrix for the \(0^{\it th}\) layer i.e.
+\(S_{N\vert X}=\vec{A}^0\) and \(m_0 = d\).
 
-\begin{equation}
-  \rho\br{\vec{x}} = \sqrt{\dfrac{\sum_{i=s_1+1}^{s_2}\ip{\vec{c_i}}{\vec{x}}^2}{ \sum_{i=1}^{s_1} \ip{\vec{c_i}}{\vec{x}}^2}}
+For any layer's~(including the input) representation matrix, we define the {\em
+data subspace} as the space spanned by the top eigenvectors of the
+representation matrix and the {\em adversarial subspace} as the space spanned by
+the rows of the matrix but orthogonal to the data subspace. For any layer, let
+\(\bc{c_1,\cdots,c_d}\) be the corresponding principal components in descending
+order of the variance of data explained by each component. For two positive
+integers \(1\le s_1\le s_2\le d\), the {\em data subspace} is defined as the
+space spanned by \(\{c_1,\cdots,c_{s_1}\}\) and the orthogonal space is the
+space spanned by \(c_{s_1+1},\cdots,c_{s_2}\). Then for every point
+\(\vec{x}\in\reals^{m_\ell}\), we assign a score 
+
+\begin{equation}\label{eq:energy-ratio-score-fn}
+  \rho_{s_1,s_2}\br{\vec{x}} = \sqrt{\dfrac{\sum_{i=s_1+1}^{s_2}\ip{\vec{c_i}}{\vec{x}}^2}{ \sum_{i=1}^{s_1} \ip{\vec{c_i}}{\vec{x}}^2}}
 \end{equation}
 
-Then for a given a threshold \(\rho_0\), if \(\rho\br{\vec{x}}\ge \rho_0\), we classify \(\vec{x}\) as an adversarial example otherwise we classify it as a natural example. 
-
-
-\begin{figure}[t]
-  \centering
-  \begin{subfigure}[t]{0.49\linewidth}
-    \def\svgwidth{0.99\columnwidth}
-    \input{./figs/adv_clean_ortho_dim_auc.pdf_tex}
-    \subcaption{Representation Space~(Dim\(\approx\)9000)}
-    \label{fig:dir-adv-att-repr}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.49\linewidth}
-    \def\svgwidth{0.99\columnwidth}
-    \input{./figs/adv_clean_ortho_dim_auc_imgspace.pdf_tex}
-    \subcaption{Input Space~(Dim=784)}
-    \label{fig:dir-adv-att-inp}
-  \end{subfigure}
-  \caption{Increasing the Adv subspace dimensions and the data dimension increases the classifiability of adversarial example. The vertical lines are isolines for the sum of the two adversarial subspace dimension and the data subspace dimension.}
-\end{figure}
-
-% AUC values for represeantation
-% ([500, 800, 1000, 2000, 5000],
-%  [480, 600, 900, 1500, 3000],
-%  array([[0.86347451, 0.871213  , 0.88653578, 0.90413287, 0.92836279],
-%         [0.89912602, 0.90562672, 0.91786264, 0.93481801, 0.95354976],
-%         [0.91893012, 0.92618109, 0.93657281, 0.94936903, 0.96454761],
-%         [0.96882571, 0.972665  , 0.97610959, 0.98073429, 0.98755096],
-%         [0.9955351 , 0.99602749, 0.9963835 , 0.99699675, 0.9979373 ]]))
-
+Then for a given a threshold \(\rho_0\), we can define an adversary detector
+\(\psi_{\rho,s_1,s_2}:\reals^{m_\ell}\mapsto \bc{0,1}\)
+\[ \psi_{\rho,s_1,s_2}\br{\vec{x}} = \begin{cases} \label{eq:detector-fn}
+  1 & \text{if}\enskip \rho_{s_1,s_2}\br{\vec{x}}  >\rho \\
+  0  & \text{if}\enskip  \rho_{s_1,s_2}\br{\vec{x}}  \le \rho
+\end{cases}
+\]
+ where classifying \(\vec{x}\) as \(1\) means classifying it as an adversarially perturbed example and \(0\) means classifying it as a clean example.
 
